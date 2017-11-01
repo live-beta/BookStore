@@ -1,0 +1,29 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging / miscellaneous files
+.DS_Store
+*/.DS_Store
+
+
+# Unit test / coverage reports
+.coverage
+coverage/
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.hypothesis/
+
+# virtualenv
+venv/
+ENV/
+
+# Test data to be ignored and databases
+*.db
+migrations/
+htmlcov/
+.env
