@@ -2,8 +2,8 @@
 
 import os
 from app import create_app, db, api
-from app.models import User,Books
-from app.views import LoginUser, RegisterUser, BookAction
+from app.stock.models import User,Books
+from app.stock.views import LoginUser, RegisterUser, BookStockAction
 from flask_script import Manager, Shell, prompt_bool
 from flask_migrate import Migrate, MigrateCommand
 from flask import jsonify
@@ -82,7 +82,7 @@ def dropdb():
 if __name__ == "__main__":
     api.add_resource(LoginUser, "/auth/login", endpoint="token")
     api.add_resource(RegisterUser, "/auth/register", endpoint="register")
-    api.add_resource(BookAction, "/books",
+    api.add_resource(BookStockAction, "/books",
                      "/books/<book_idbm>", endpoint="book")
     # api.add_resource(ItemAction, "/bucketlists/<id>/items",
     #                  "/bucketlists/<id>/items/<Item_id>", endpoint="items")

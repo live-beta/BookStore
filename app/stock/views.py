@@ -3,10 +3,10 @@ import re
 from flask_restful import abort, inputs, Resource, reqparse, marshal_with
 from flask import abort, jsonify, request
 from app import db, expiry_time
-from app.models import User, Books
-from app.user_auth import token_auth, g
-from app.utils import save, delete, is_not_empty
-from app.serializer import BookFormat
+from models import User, Books
+from app.users.user_auth import token_auth, g
+from app.utils.utils import save, delete, is_not_empty
+from serializer import BookFormat
 
 
 class LoginUser(Resource):
@@ -26,7 +26,7 @@ class LoginUser(Resource):
     def post(self):
         """Processing User deatils and returning token"""
 
-        args = self.reqparse.parse_args()
+        args = self.reqparse.parse_args()  
         # Assigning the user varble inoformation
 
         username, password = args["username"], args["password"]
@@ -91,29 +91,29 @@ class RegisterUser(Resource):
         return {"message": msg}, 201
 
 
-class BookAction(Resource):
-    """ Class for all the operations of bucketlist """
+class BookStockAction(Resource):
+    """ Class for book operations """
     # Check for a valid tocken before executing the function in this class
     decorators = [token_auth.login_required]
 
     def __init__(self):
         """Request parser to validate input """
         self.reqparse = reqparse.RequestParser()
-        super(BookAction, self).__init__()
+        super(BookStockAction, self).__init__()
 
     def post(self, id=None):
-        """ Function to make a new bucketlist"""
+        """ Function to make a new book"""
         if id:
             abort(400, "This is a bad request, try again")
         self.reqparse.add_argument("book_name", type=str, required=True,
                                    help="Book Name Required")
-        self.reqparse.add_argument("book_idbm", type=str, required=True,
-                                   help="Book IDBM Required")
+        self.reqparse.add_argument("book_isbn", type=str, required=True,
+                                   help="Book ISBN Required")
         self.reqparse.add_argument("stock_count", type=int, required=True,
                                    help="Book Name Required")
         args = self.reqparse.parse_args()
         book_name = args["book_name"]
-        book_idbm = args["book_idbm"]
+        book_isbn= args["book_isbn"]
         stock_count = args["stock_count"]
 
         # Validating the user inputs
@@ -123,8 +123,8 @@ class BookAction(Resource):
         if book_name.isspace():
             return{"message": "The name you have entered is not relevant"}, 400
 
-        # creating and saving an instance of a bucket
-        book_instance = Books(book_name=book_name, book_idbm=book_idbm, stock_count=stock_count, user_id=g.user.id)
+        # creating and saving an instance of a book
+        book_instance = Books(book_name=book_name, book_isbn=book_isbn, stock_count=stock_count, user_id=g.user.id)
         save(book_instance)
         msg = (book_instance.book_name + "of ID" + str(book_instance.id) + " Has been \
                 saved successfully")
@@ -139,7 +139,7 @@ class BookAction(Resource):
         if id:
             book_obj = Books.query.filter_by(id=id).first()
             if not book_obj or (book_obj.user_id != g.user.id):
-                abort(404, "The requested bucketlist is not found")
+                abort(404, "The requested book is not found")
             return book_obj, 200
         if search:
             book_search_results = Books.query.filter(Books.name.ilike(
@@ -161,25 +161,24 @@ class BookAction(Resource):
                                                                                            False)
             book_display = [
                 book_disp for book_disp in book_collection.items]
-            return bucket_display, 200
+            return book_display, 200
 
-    def put(self, book_idbm=None):
-        """ Altering Book content"""
+    def put(self, book_isbn=None):
 
-        if not book_idbm:
+        if not book_isbn:
             return {"message": "Bad request"}, 400
-        self.reqparse.add_argument("book_idbm", type=str, required=True,
-                                   help="Book IDBM is required")
+        self.reqparse.add_argument("book_isbn", type=str, required=True,
+                                   help="Book ISBN is required")
 
         args = self.reqparse.parse_args()
-        book_idbm = args["book_idbm"]
+        book_isbn = args["book_isbn"]
 
-        # Validation of user inputs bucketlist changes
-        if not is_not_empty(book_idbm):
+        if not is_not_empty(book_isbn):
             return{"message": "No blank fields allowed"}, 400
-        if book_idbm.isspace():
-            return {"message": "The IDBM entered is invalid "}, 400
-        book_info = Books.query.filter_by(book_idbm=book_idbm).first()
+        if book_isbn.isspace():
+            return {"message": "The ISBN entered is invalid "}, 400
+        book_info = Books.query.filter_by(book_isbn=book_isbn.first())
+
         if not book_info or (book_info.user_id != g.user.id):
             abort(404, "Book is not found")
         book_info.stock_count = stock_count + 1
@@ -187,81 +186,13 @@ class BookAction(Resource):
         msg = ("Book ID: " + str(book_info.id) + "Is Updated")
         return {"message": msg}, 200
 
-    def delete(self, book_idbm=None):
-        """Deleting a bucketlist"""
-        if not book_idbm:
+    def delete(self, book_isbn=None):
+
+        if not book_isbn:
             abort(400, "bad request")
-        book_del = Books.query.filter_by(book_idbm=book_idbm).first()
+        book_del = Books.query.filter_by(book_isbn=book_isbn).first()
         if not book_del or (book_del.user_id != g.user.id):
             abort(404, "The book is not in the system")
         delete(book_del)
         msg = ("book : " + book_del.name + " Deleted successfully")
         return {"message": msg}, 200
-
-
-# class ItemAction(Resource):
-#     """ Handles CRUD operations for items in bucketlist"""
-#     decorators = [token_auth.login_required]
-
-#     def __init__(self):
-#         """ add request parser to validate inputs"""
-#         self.reqparse = reqparse.RequestParser()
-#         super(ItemAction, self).__init__()
-
-#     def post(self, id=None):
-#         """ make a new Item """
-#         self.reqparse.add_argument("name", type=str, required=True,
-#                                    help="Item name required")
-#         args = self.reqparse.parse_args()
-#         name = args["name"]
-#         # validation of user inputs
-#         if not is_not_empty(name):
-#             return {"message": "no blank fields allowed"}, 400
-#         if name.isspace():
-#             return {"message": "name is invalid"}, 400
-#         bucketlist = Bucketlist.query.filter_by(id=id).first()
-#         if not bucketlist or (bucketlist.user_id != g.user.id):
-#             abort(404, "bucketlist not found, confirm the id")
-#         item = Item(name=name, bucket_id=id)
-#         save(item)
-#         msg = ("item has been added to the bucketlist")
-#         return {"message": msg}, 201
-
-#     def put(self, id=None, Item_id=None):
-#         """ modify an item given name and status or combination of both"""
-#         self.reqparse.add_argument("name", type=str, help="item name required")
-#         self.reqparse.add_argument("status", type=inputs.boolean,
-#                                    location="json",
-#                                    help="status required as true or false")
-#         args = self.reqparse.parse_args()
-#         name, status = args["name"], args["status"]
-#         if not id or not Item_id:
-#             abort(400, "bad request")
-#         if name is None and status is None:
-#             abort(400, "provide at least one parameter to change")
-
-#         bucket = Bucketlist.query.filter_by(id=id).first()
-#         item = Item.query.filter_by(id=Item_id).first()
-#         if not bucket or (bucket.user_id != g.user.id) or not item:
-#             abort(404, "Item not found, confirm bucketlist and item id")
-
-#         if status is True or status is False:
-#             item.status = status
-#         if name is not None:
-#             if not is_not_empty(name):
-#                 return {"message": "name can't be blank"}, 400
-#             if name.isspace():
-#                 return {"message": "name is invalid"}, 400
-#             item.name = name
-
-#         return {"message": "item has been updated"}, 200
-
-#     def delete(self, id=None, Item_id=None):
-#         """ delete the item """
-#         bucket = Bucketlist.query.filter_by(id=id).first()
-#         item = Item.query.filter_by(id=Item_id).first()
-#         if not bucket or (bucket.user_id != g.user.id) or not item:
-#             abort(404, "item not found, confirm bucketlist and item id")
-#         delete(item)
-
-#         return {"message": "item has been deleted successfully"}, 200

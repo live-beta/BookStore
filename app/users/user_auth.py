@@ -1,7 +1,7 @@
 from flask_httpauth import HTTPTokenAuth
 from flask import jsonify, g
 
-from app.models import User
+from app.stock.models import User
 
 # Setting up the Authorization header with a token profix
 
