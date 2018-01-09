@@ -7,6 +7,8 @@ from app.stock.views import LoginUser, RegisterUser, BookStockAction
 from flask_script import Manager, Shell, prompt_bool
 from flask_migrate import Migrate, MigrateCommand
 from flask import jsonify
+from flask import Flask, render_template
+from app.users.user_auth import token_auth, g
 import coverage
 
 COV = coverage.coverage(
@@ -33,6 +35,14 @@ migrate = Migrate(app, db)
 
 # make custom json error codes
 
+@app.route('/')
+def index():
+    decorators = [token_auth.login_required]
+
+    return render_template('index.html')
+   
+
+   
 
 @app.errorhandler(500)
 def server_error(e):
@@ -41,7 +51,9 @@ def server_error(e):
 
 @app.errorhandler(404)
 def page_not_found(e):
+    return render_template('404Error.html')
     return jsonify(error=404, message=str(e)), 404
+
 
 
 def make_shell_context():
@@ -84,6 +96,8 @@ if __name__ == "__main__":
     api.add_resource(RegisterUser, "/auth/register", endpoint="register")
     api.add_resource(BookStockAction, "/books",
                      "/books/<book_idbm>", endpoint="book")
+
+    
     # api.add_resource(ItemAction, "/bucketlists/<id>/items",
     #                  "/bucketlists/<id>/items/<Item_id>", endpoint="items")
     manager.run()

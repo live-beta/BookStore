@@ -50,9 +50,12 @@ class Books(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     book_name = db.Column(db.String(255), nullable=False)
     book_isbn = db.Column(db.String(255), nullable=False)
-    stock_count = db.Column(db.Integer, nullable=False)
+    book_category = db.Column(db.String(255), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
-
-
+    subtitle = db.Column(db.String(255), nullable=False)
+    authors =db.Column(db.String(255), nullable=False)
+    description = db.Column(db.String(255), nullable=False) 
+    publishedDate = db.Column(db.String(255), nullable=False)
+    industryIdentifiers = db.Column(db.String(255), nullable=False)
 
 

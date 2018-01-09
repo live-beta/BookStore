@@ -6,7 +6,12 @@ BookFormat ={
 	"id":fields.Integer,
 	"book_name": fields.String,
 	"book_isbn": fields.String,
-	"stock_count": fields.Integer,
-	"book_category": fields.Integer,
+	"book_category": fields.String,
+	"subtitle" :  fields.String,
+    # "authors" : fields.String,
+    "description" : fields.String,
+    "publishedDate" :  fields.String,
+    # "industryIdentifiers" :  fields.String
+
 }
 

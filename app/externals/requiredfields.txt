@@ -1,0 +1,20 @@
+title 
+subtitle 
+authors
+
+data published 
+
+* IndustryIdentifires
+ 		
+ 		type: SIBN 10 
+ 		idenfier 
+
+// both for ISBN 10 and 13 
+
+
+
+categories 
+
+searchInfo
+
+

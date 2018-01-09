@@ -116,11 +116,15 @@ class BookStockAction(Resource):
         book_isbn= args["book_isbn"]
         stock_count = args["stock_count"]
 
+        # add more information on the kindsm of fields that can be added.
+
+        
+
         # Validating the user inputs
         if not is_not_empty(book_name):
             return {"message": "No blank book names allowed"}, 400
         
-        if book_name.isspace():
+        if book_name.isspace(): 
             return{"message": "The name you have entered is not relevant"}, 400
 
         # creating and saving an instance of a book

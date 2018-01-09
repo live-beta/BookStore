@@ -7,6 +7,9 @@ from models import User, Books
 from app.users.user_auth import token_auth, g
 from app.utils.utils import save, delete, is_not_empty
 from serializer import BookFormat
+import requests
+import os
+import json
 
 
 class LoginUser(Resource):
@@ -102,29 +105,46 @@ class BookStockAction(Resource):
         super(BookStockAction, self).__init__()
 
     def post(self, id=None):
-        """ Function to make a new book"""
+        """ Class that adds a new book """
         if id:
             abort(400, "This is a bad request, try again")
-        self.reqparse.add_argument("book_name", type=str, required=True,
+        self.reqparse.add_argument("title", type=str, required=True,
                                    help="Book Name Required")
-        self.reqparse.add_argument("book_isbn", type=str, required=True,
-                                   help="Book ISBN Required")
-        self.reqparse.add_argument("stock_count", type=int, required=True,
-                                   help="Book Name Required")
-        args = self.reqparse.parse_args()
-        book_name = args["book_name"]
-        book_isbn= args["book_isbn"]
-        stock_count = args["stock_count"]
+        self.reqparse.add_argument("subtitle",type=str, required=True, help="subtitle required")
 
-        # Validating the user inputs
-        if not is_not_empty(book_name):
+        self.reqparse.add_argument("categories", type=str, required=True,
+                                   help="categories Required")
+        self.reqparse.add_argument("description", type=str, required=True,
+                                   help="description Required")
+        self.reqparse.add_argument("publisheddate", type=str, required=True,
+                                   help="publisheddate Required")
+        self.reqparse.add_argument("isbn", type=str, required=True,
+                                   help="isbn required")
+    
+
+        args = self.reqparse.parse_args()
+
+        # Getting book by isbn
+
+        title = args["title"]
+        subtitle = args["subtitle"]
+        categories = args["categories"]
+        description = args["description"]
+        publishedDate = args["publisheddate"]
+        isbn = args["isbn"]
+
+
+        # response = requests.get('https://www.googleapis.com/books/v1/volumes?q=isbn:'+ book_isbn)
+        # data = json.loads(response.content)
+
+        if not is_not_empty(title):
             return {"message": "No blank book names allowed"}, 400
         
-        if book_name.isspace():
+        if title.isspace():
             return{"message": "The name you have entered is not relevant"}, 400
 
         # creating and saving an instance of a book
-        book_instance = Books(book_name=book_name, book_isbn=book_isbn, stock_count=stock_count, user_id=g.user.id)
+        book_instance = Books(book_name=title, book_isbn=isbn, book_category=categories, user_id=g.user.id, subtitle=subtitle, description=description,publishedDate=publishedDate)
         save(book_instance)
         msg = (book_instance.book_name + "of ID" + str(book_instance.id) + " Has been \
                 saved successfully")

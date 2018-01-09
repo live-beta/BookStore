@@ -17,15 +17,10 @@ class Config:
 
 
 class Development(Config):
-    """
-    Setup wide development environment
+# Setting up the dev environment
 
-    """
     DEBUG = True
-    # configuration for postgres development
-    """
-    app.config['SQLALCHEMY_DATABASE_URI'] = ('postgresql://bucketlist:bucketlist@localhost/bucketlist')
-    """
+
     SQLALCHEMY_DATABASE_URI = os.environ.get('DEV_DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'data-dev.db')
 
