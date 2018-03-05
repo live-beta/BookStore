@@ -120,6 +120,7 @@ class BookStockAction(Resource):
                                    help="publisheddate Required")
         self.reqparse.add_argument("isbn", type=str, required=True,
                                    help="isbn required")
+    # Persing API specific information.
     
 
         args = self.reqparse.parse_args()

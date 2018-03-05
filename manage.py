@@ -95,7 +95,7 @@ if __name__ == "__main__":
     api.add_resource(LoginUser, "/auth/login", endpoint="token")
     api.add_resource(RegisterUser, "/auth/register", endpoint="register")
     api.add_resource(BookStockAction, "/books",
-                     "/books/<book_idbm>", endpoint="book")
+                     "/books/<book_idbm>", endpoint="books")
 
     
     # api.add_resource(ItemAction, "/bucketlists/<id>/items",
